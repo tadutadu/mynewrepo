@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	
+	<flow name="post-customer-impl-flow" doc:id="6a25d3a1-7a59-466d-b82b-b3b4793bbf4d" >
+		<logger level="INFO" doc:name="Flow Start" doc:id="18b979ca-c6c7-4117-bec3-81d50a36be06" message="post customer impl flow start  and transformation begin #[payload]"/>
+		<set-variable value="#[payload.cust_id]" doc:name="Set Variable" doc:id="49c51138-7fe0-48f4-b106-a244e4f1a455" variableName="custId"/>
+		<ee:transform doc:name="Customer Mapping" doc:id="bb1b0dba-8b0c-45e9-b559-8747a349536c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+			<ee:variables >
+			</ee:variables>
+		</ee:transform>
+		<snowflake:select doc:name="Select" doc:id="46b6758b-68fe-496b-af51-6622b5783e6b" config-ref="Snowflake_Config" target="sfPayload">
+			<snowflake:sql><![CDATA[SELECT * FROM CUSTOMER WHERE CUSTID = :custId]]></snowflake:sql>
+			<snowflake:input-parameters><![CDATA[#[{
+	"custId": vars.custId
+}]]]></snowflake:input-parameters>
+		</snowflake:select>
+		<choice doc:name="Choice" doc:id="eb47bd33-a952-410f-919f-5a0745e2259f" >
+			<when expression="#[sizeOf(vars.sfPayload) &gt;= 1]">
+				<raise-error doc:name="Raise error" doc:id="0c8dadcf-3ac8-47f4-8659-3fb68bba71b4" type="RECORD:EXIST_DB" description="The record allready exist in the databas "/>
+			</when>
+		</choice>
+		<logger level="INFO" doc:name="SF Call Start" doc:id="9b92172f-4ef7-4b10-bb3b-f19548491b65" message="transformation end snowflak cal start #[payload]"/>
+		<snowflake:insert doc:name="Snowflake Insert" doc:id="16342f6b-52bd-47e7-8a0f-88188c5fec61" config-ref="Snowflake_Config">
+			<snowflake:sql ><![CDATA[INSERT INTO CUSTOMER (CUSTID, CUSTEMAIL, CUSTNAME, CUSTPHONE, CUSTADDRESS) 
+VALUES (:custId, :custEmail, :custName, :custPhone, :custAddress)]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": payload.cust_id,
+	"custEmail": payload.cust_email,
+	"custName": payload.cust_name,
+	"custPhone": payload.cust_phone,
+	"custAddress": payload.cust_address
+}]]]></snowflake:input-parameters>
+		</snowflake:insert>
+		<logger level="INFO" doc:name="Snow Flake Call End" doc:id="9c08bbcb-4e5f-4152-a18d-77de47d5b400" message="after snowflak call end: #[payload]"/>
+		<ee:transform doc:name="Response Payload" doc:id="d9501846-f7c6-4d74-ba95-f9686f1796cf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": true,
+	"message": "account/customer data successfuly created in snowflake"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

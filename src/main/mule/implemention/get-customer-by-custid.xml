@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="get-customer-impl-flow" doc:id="9661c4d2-d8e6-4a67-bf23-6c83631f1957" >
+		<logger level="INFO" doc:name="Flow Start" doc:id="39e400a1-14d0-493c-860d-f66b65fb6f87" message="get customer by Id impl flow start #[payload]" />
+		<set-variable value="#[attributes.uriParams.cust_id]" doc:name="Set Variable" doc:id="2fcff8e3-2b28-4b5a-9bba-094fa1ab0271" variableName="custId"/>
+		<logger level="INFO" doc:name="SF Call Start" doc:id="9127acf2-2d56-4caf-ba76-18d37151c702" message="snowflak call start #[payload]" />
+		<!-- [STUDIO:"Snowflake Insert"]<snowflake:insert doc:name="Snowflake Insert" doc:id="a880bdbd-ce85-4771-9953-c9883095c2b5" config-ref="Snowflake_Config" >
+			<snowflake:sql ><![CDATA[SELECT * FROM CUSTOMER WHERE CUSTID = :custId&#93;&#93;></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": vars.custId
+}&#93;&#93;&#93;></snowflake:input-parameters>
+		</snowflake:insert> [STUDIO] -->
+		<snowflake:select doc:name="Select" doc:id="f960472f-9941-4be6-9dab-2ec82b93f794" config-ref="Snowflake_Config">
+			<snowflake:sql ><![CDATA[SELECT * FROM CUSTOMER WHERE CUSTID = :custId]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": vars.custId
+}]]]></snowflake:input-parameters>
+		</snowflake:select>
+		<choice doc:name="Choice" doc:id="311d95f5-a4a0-42dd-9378-47f58cb74708" >
+			<when expression="#[sizeOf(payload) &gt;= 1]">
+				<logger level="INFO" doc:name="Snow Flake Call End" doc:id="86d095ad-fc9c-405f-92f8-560ca3365f29" message="snowflak call end: #[payload]" />
+				<ee:transform doc:name="Response Payload" doc:id="ecad3746-e562-4b28-8062-7d8875a1c245">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+			</when>
+			<otherwise >
+				<logger level="INFO" doc:name="Snow Flake Call End" doc:id="bcee0d54-6a6b-4bcb-b7a9-350b1857d99c" message="snowflak call returns empty record for custId : #[vars.custId]" />
+				<ee:transform doc:name="Response Payload" doc:id="9d04e82a-8e2f-45db-bac2-c456d8e69e8b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"status": "false",
+	"message": "No record forund in the DB for the customer Id" ++ " " ++ vars.custId
+}]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</otherwise>
+		</choice>
+	</flow>
+</mule>

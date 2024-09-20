@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="get-all-customer-impl-flow" doc:id="58f45207-4dc5-4f99-8aac-57cfa2a3bb7e" >
+		<logger level="INFO" doc:name="Flow Start" doc:id="bd6b6871-bc37-4b6d-94bb-8b68c022898f" message="get all customer impl flow start  " />
+		<logger level="INFO" doc:name="SF Call Start" doc:id="af1df63c-fdfe-47b8-87a5-b6149b003d2d" message="snowflak cal start #[payload]" />
+		<!-- [STUDIO:"Snowflake Insert"]<snowflake:insert doc:name="Snowflake Insert" doc:id="19d50c87-5692-47f7-b994-9142eb328ae9" config-ref="Snowflake_Config" >
+			<snowflake:sql ><![CDATA[INSERT INTO CUSTOMER (CUSTID, CUSTEMAIL, CUSTNAME, CUSTPHONE, CUSTADDRESS) 
+VALUES (:custId, :custEmail, :custName, :custPhone, :custAddress)&#93;&#93;></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": payload.cust_id,
+	"custEmail": payload.cust_email,
+	"custName": payload.cust_name,
+	"custPhone": payload.cust_phone,
+	"custAddress": payload.cust_address
+}&#93;&#93;&#93;></snowflake:input-parameters>
+		</snowflake:insert> [STUDIO] -->
+		<snowflake:select doc:name="Select" doc:id="0374caf6-7fd6-470f-8510-3a84fd222320" config-ref="Snowflake_Config">
+			<snowflake:sql><![CDATA[SELECT * FROM CUSTOMER]]></snowflake:sql>
+		</snowflake:select>
+		<logger level="INFO" doc:name="Snow Flake Call End" doc:id="57917396-a6b5-4ea6-a8d2-016f381768ec" message="after snowflak call end: #[payload]" />
+		<ee:transform doc:name="Response Payload" doc:id="fd99bd29-d033-4d5f-b697-7d3d144528c0" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

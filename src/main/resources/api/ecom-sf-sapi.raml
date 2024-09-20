@@ -1,0 +1,448 @@
+#%RAML 1.0
+title: ecom-sf-sapi
+
+version: v1
+#mediaType: application/json
+
+protocols: [HTTP, HTTPS]
+baseUri: https://anypoint.mulesoft.com/mocking/api/v1/links/7f018d05-1fa9-4228-b454-7865aef722df
+types:
+  Customer:
+    type: object
+    properties:
+      cust_id:
+        type: number
+        example: 1001
+      cust_name:
+        type: string
+        example: "jhone"
+      cust_email:
+        type: string
+        example: "jhon.doe@example.com"
+      cust_phone: 
+        type: string
+        example: "+1234567890"
+      cust_address:
+        type: object
+        properties:
+          street:
+            type: string
+            example: "123 Main St."
+          city: 
+           type: string
+           example: "New York"
+          state:
+            type: string
+            example: "NY"
+          postal_code: 
+            type: string
+            example: "10001"
+          country:
+            type: string
+            example: "USA"
+  
+  customerSuccess:
+    type: object
+    properties:
+      code:
+        type: string
+        example: "201"
+      message: 
+        type: string
+        example: "Customer info created successfuly in snowflake"
+  
+/customers:
+  displayName: Get customer
+  description: "get the customer iformation from snowflake databas"
+  get:
+    headers:
+      client_id:
+        type: string
+        required: true
+      client_secret:
+        type: string
+        required: true
+    responses:
+      200:
+        body:
+          application/json:
+            type: Customer
+      400:
+        body:
+          application/json:
+            example:
+              {
+                "code": "400",
+                "message": "bad request"
+              }
+      401:
+        body:
+          application/json:
+            example:
+              {
+                "code": "401",
+                "message": "Unauthorazed"
+              }
+      404:
+        body:
+          application/json:
+            example:
+              {
+                "code": "404",
+                "message": "not found"
+              }
+      405:
+        body:
+          application/json:
+            example:
+              {
+                "code": "405",
+                "message": "method not allowed"
+              }
+      415:
+        body:
+          application/json:
+            example:
+              {
+                "code": "415",
+                "message": "un supported media type"
+              }
+      500:
+        body:
+          application/json:
+            example:
+              {
+                "code": "500",
+                "message": "server failure"
+              }
+  post:
+    headers:
+      client_id:
+        type: string
+        required: true
+      client_secret:
+        type: string
+        required: true
+    description: create a new customer
+    displayName: creat customer
+    body:
+      application/json:
+       type: Customer
+    responses:
+      201:
+        body:
+          application/json:
+             type: customerSuccess
+
+      400:
+        body:
+          application/json:
+            example:
+              {
+                "code": "400",
+                "message": "bad request"
+              }
+      401:
+        body:
+          application/json:
+            example:
+              {
+                "code": "401",
+                "message": "Unauthorazed"
+              }
+      404:
+        body:
+          application/json:
+            example:
+              {
+                "code": "404",
+                "message": "not found"
+              }
+      405:
+        body:
+          application/json:
+            example:
+              {
+                "code": "405",
+                "message": "method not allowed"
+              }
+      415:
+        body:
+          application/json:
+            example:
+              {
+                "code": "415",
+                "message": "un supported media type"
+              }
+      500:
+        body:
+          application/json:
+            example:
+              {
+                "code": "500",
+                "message": "server failure"
+              }
+  patch: 
+    description: partial update an existing customer by ID
+    displayName: patch customer
+    queryParameters:
+      cust_id:
+        type: number
+        example: 1001
+        required: true
+    body:
+      application/json:
+        type: Customer
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              {
+                "code": "200",
+                "message": "Account updated successfuly"
+              }    
+      400:
+        body:
+          application/json:
+            example:
+              {
+                "code": "400",
+                "message": "bad request"
+              }
+      401:
+        body:
+          application/json:
+            example:
+              {
+                "code": "401",
+                "message": "Unauthorazed"
+              }
+      404:
+        body:
+          application/json:
+            example:
+              {
+                "code": "404",
+                "message": "not found"
+              }
+      405:
+        body:
+          application/json:
+            example:
+              {
+                "code": "405",
+                "message": "method not allowed"
+              }
+      415:
+        body:
+          application/json:
+            example:
+              {
+                "code": "415",
+                "message": "un supported media type"
+              }
+      500:
+        body:
+          application/json:
+            example:
+              {
+                "code": "500",
+                "message": "server failure"
+              }   
+  /{cust_id}:
+    uriParameters:
+      cust_id:
+        type: number
+        description: unique id of customer
+        example: 200
+        required: true
+    get:
+      description: retrives details of a specific customer by id
+      displayName: get customer
+      responses:
+        200:
+          body:
+            application/json:
+              type: Customer
+        400:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "400",
+                  "message": "bad request"
+                }
+        401:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "401",
+                  "message": "Unauthorazed"
+                }
+        404:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "404",
+                  "message": "not found"
+                }
+        405:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "405",
+                  "message": "method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "415",
+                  "message": "un supported media type"
+                }
+        500:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "500",
+                  "message": "server failure"
+                }
+    put:
+      description: update an existing by ID
+      displayName: update customer
+      body:
+        application/json:
+          type: Customer
+      responses:
+        200:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "200",
+                  "message": "customer data updated successfuly"
+                }    
+        400:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "400",
+                  "message": "bad request"
+                }
+        401:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "401",
+                  "message": "Unauthorazed"
+                }
+        404:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "404",
+                  "message": "not found"
+                }
+        405:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "405",
+                  "message": "method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "415",
+                  "message": "un supported media type"
+                }
+        500:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "500",
+                  "message": "server failure"
+                }
+    delete:
+      description: delete a customer by ID
+      displayName: delete customer 
+      responses:
+        204:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "204",
+                  "message": customer deleted successfuly
+                }  
+        400:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "400",
+                  "message": "bad request"
+                }
+        401:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "401",
+                  "message": "Unauthorazed"
+                }
+        404:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "404",
+                  "message": "not found"
+                }
+        405:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "405",
+                  "message": "method not allowed"
+                }
+        415:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "415",
+                  "message": "un supported media type"
+                }
+        500:
+          body:
+            application/json:
+              example:
+                {
+                  "code": "500",
+                  "message": "server failure"
+                }
+
+   
+
+
+
+      
+          
+      
+
+

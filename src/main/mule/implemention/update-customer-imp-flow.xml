@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:snowflake="http://www.mulesoft.org/schema/mule/snowflake" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/snowflake http://www.mulesoft.org/schema/mule/snowflake/current/mule-snowflake.xsd">
+	<flow name="update-customer-imp-flowFlow" doc:id="5bc4cd02-1b42-4107-b70a-2665ada2b9c7" >
+		<logger level="INFO" doc:name="Logger" doc:id="aaea0680-be10-4931-b630-19df0628bd5f" message="update impl flow start: #[payload]"/>
+		<ee:transform doc:name="Transform Message" doc:id="a7730d57-23c5-4654-b4b1-0f661229ef28" >
+			<ee:message >
+			</ee:message>
+			<ee:variables >
+				<ee:set-variable variableName="custId" ><![CDATA[attributes.uriParams.cust_id]]></ee:set-variable>
+			</ee:variables>
+		</ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="9913c7c3-ee19-4417-a4fd-94fa8381e338" message="snow flake call started"/>
+		<snowflake:update doc:name="Update" doc:id="782e67f9-5cc8-4e73-805b-f72bfd97a90c" config-ref="Snowflake_Config">
+			<snowflake:sql ><![CDATA[UPDATE CUSTOMER SET CUSTID = :custId, CUSTEMAIL = :custEmail, 
+CUSTNAME = :custName, CUSTPHONE = :custPhone, CUSTADDRESS = :custAddress WHERE CUSTID = :cId]]></snowflake:sql>
+			<snowflake:input-parameters ><![CDATA[#[{
+	"custId": payload.cust_id,
+	"custEmail": payload.cust_email,
+	"custName": payload.cust_name,
+	"custPhone": payload.cust_phone,
+	"custAddress": payload.cust_address,
+	"cId": vars.custId
+}]]]></snowflake:input-parameters>
+		</snowflake:update>
+		<logger level="INFO" doc:name="Logger" doc:id="86d6bbc6-0454-4afa-99c5-e76bd0f14b7e" message="end of snoeflake call"/>
+		<ee:transform doc:name="Transform Message" doc:id="a13d271d-f760-46c2-b6f4-e1166618131a" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"SUCCESS": "true",
+	"message": "customer info successfuly updated for custId:" ++ " " ++ vars.custId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

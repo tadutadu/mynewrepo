@@ -1,0 +1,14 @@
+api:
+  id: "19869953"
+  name: "ecom-snowflak-sapi"
+  version: "v1"
+#snow flake config:
+
+snowflak:
+  account: ""
+  wh: ""
+  db: ""
+  schema: ""
+  user: ""
+  password: ""
+  role: ""
